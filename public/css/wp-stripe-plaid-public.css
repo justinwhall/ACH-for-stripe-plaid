@@ -1,0 +1,9 @@
+#sp-pay{
+	display: none;
+}
+.sp-field-wrap label{
+	margin-bottom: 0;
+}
+.sp-field-wrap{
+	margin-bottom: 10px;
+}
