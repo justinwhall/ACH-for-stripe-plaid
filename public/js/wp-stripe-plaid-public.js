@@ -24,8 +24,12 @@
 	};
 
 	// Get token from plaid
-	$('#sp-pay').on('click', function(event) {
-		event.preventDefault();
+	$('#sp-pay').on('click', callPlaid );
+
+	function callPlaid() {
+
+		$('.sp-spinner').css('opacity', 1);
+		$('#pay').off('click');
 
 		// format amount
 		var amount = $( '#sp-amount' ).val() * 1;
@@ -46,7 +50,9 @@
 			type    : 'POST',
 			data    : data,
 			success : function( data ){
+				$('.sp-spinner').css('opacity', 0);
 				if ( data.error ) {
+					$('#sp-pay').on('click', callPlaid );
 					$('#sp-response').text( data.error.message );
 					$('#sp-response').addClass('error');
 					$('#sp-response').removeClass('success');
@@ -58,6 +64,6 @@
 				}
 			}
 		});
-	});
+	}
 	
 })( jQuery );

@@ -129,7 +129,7 @@ class Wp_Stripe_Plaid_Public {
 			<div>
 				<button data-publickey="<?php echo $this->settings['plaid_public_key']; ?>" id='linkButton'>Select Bank Account</button>
 				<button  id='sp-pay'>Pay</button>
-				<div class="spinner">
+				<div class="sp-spinner">
 				  <div class="double-bounce1"></div>
 				  <div class="double-bounce2"></div>
 				</div>
