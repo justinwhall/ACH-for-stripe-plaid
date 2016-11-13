@@ -53,8 +53,6 @@ class Wp_Stripe_Plaid_Admin {
 		$this->version = $version;
 		$this->settings_api = new WeDevs_Settings_API;
 
-		var_dump( $this->settings );
-
 		add_action( 'admin_init', array($this, 'admin_init') );
 		add_action( 'admin_menu', array($this, 'admin_menu') );
 
@@ -180,74 +178,14 @@ class Wp_Stripe_Plaid_Admin {
 	                'desc'        => __( 'Plaid keys are located: <a href="https://dashboard.plaid.com/account/keys">https://dashboard.plaid.com/account/keys</a>', $plugin_name ),
 	                'type'        => 'html'
 	            ),
-
-
-
 	            array(
-	                'name'              => 'number_input',
-	                'label'             => __( 'Number Input', $plugin_name ),
-	                'desc'              => __( 'Number field with validation callback `floatval`', $plugin_name ),
-	                'placeholder'       => __( '1.99', $plugin_name ),
-	                'min'               => 0,
-	                'max'               => 100,
-	                'step'              => '0.01',
-	                'type'              => 'number',
-	                'default'           => 'Title',
-	                'sanitize_callback' => 'floatval'
-	            ),
-	            array(
-	                'name'        => 'textarea',
-	                'label'       => __( 'Textarea Input', $plugin_name ),
-	                'desc'        => __( 'Textarea description', $plugin_name ),
-	                'placeholder' => __( 'Textarea placeholder', $plugin_name ),
-	                'type'        => 'textarea'
-	            ),
-
-	            array(
-	                'name'  => 'checkbox',
-	                'label' => __( 'Checkbox', $plugin_name ),
-	                'desc'  => __( 'Checkbox Label', $plugin_name ),
+	                'name'  => 'log',
+	                'label' => __( 'Turn on logging', $plugin_name ),
+	                'desc'  => __( 'Should not be left on indefinitely.', $plugin_name ),
 	                'type'  => 'checkbox'
-	            ),
-	            array(
-	                'name'    => 'radio',
-	                'label'   => __( 'Radio Button', $plugin_name ),
-	                'desc'    => __( 'A radio button', $plugin_name ),
-	                'type'    => 'radio',
-	                'options' => array(
-	                    'yes' => 'Yes',
-	                    'no'  => 'No'
-	                )
-	            ),
-	            array(
-	                'name'    => 'selectbox',
-	                'label'   => __( 'A Dropdown', $plugin_name ),
-	                'desc'    => __( 'Dropdown description', $plugin_name ),
-	                'type'    => 'select',
-	                'default' => 'no',
-	                'options' => array(
-	                    'yes' => 'Yes',
-	                    'no'  => 'No'
-	                )
-	            ),
-	            array(
-	                'name'    => 'password',
-	                'label'   => __( 'Password', $plugin_name ),
-	                'desc'    => __( 'Password description', $plugin_name ),
-	                'type'    => 'password',
-	                'default' => ''
-	            ),
-	            array(
-	                'name'    => 'file',
-	                'label'   => __( 'File', $plugin_name ),
-	                'desc'    => __( 'File description', $plugin_name ),
-	                'type'    => 'file',
-	                'default' => '',
-	                'options' => array(
-	                    'button_label' => 'Choose Image'
-	                )
 	            )
-	        )
+            )
+
 	    );
 	    return $settings_fields;
 	}

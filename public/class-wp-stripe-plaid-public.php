@@ -61,7 +61,6 @@ class Wp_Stripe_Plaid_Public {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->settings = get_option( 'stripe_plaid_settings' );
-		var_dump( $this->settings );
 		add_shortcode( 'wp_stripe_plaid', array( $this, 'render_form' ) );
 
 	}
@@ -107,7 +106,8 @@ class Wp_Stripe_Plaid_Public {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wp-stripe-plaid-public.js', array( 'jquery' ), $this->version, true );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wp-stripe-plaid-public.js', array( 'jquery', 'stripe_plaid' ), $this->version, true );
+		wp_enqueue_script( 'stripe_plaid', 'https://cdn.plaid.com/link/stable/link-initialize.js', array(), null, true );
 		wp_localize_script($this->plugin_name, 'ajax_object', array( 'ajax_url' => admin_url('admin-ajax.php'), 'ajax_nonce' => wp_create_nonce('stripe_plaid_nonce') ) );
 
 	}
@@ -115,25 +115,31 @@ class Wp_Stripe_Plaid_Public {
 	public function render_form(){
 		
 		?>
-		<div class="sp-field-wrap">
-			<label>Amount</label><br/>
-			<input type="number" id="sp-amount">
-		</div>
+		<form action="javascript:void(0);" id="sc-form">
+			<div class="sp-field-wrap">
+				<label>Amount</label><br/>
+				<input type="number" id="sp-amount">
+			</div>
 
-		<div class="sp-field-wrap">
-			<label>Note</label><br/>
-			<input type="text" id="sp-desc">
-		</div>
+			<div class="sp-field-wrap">
+				<label>Note</label><br/>
+				<input type="text" id="sp-desc">
+			</div>
 
-		<div>
-			<button data-publickey="<?php echo $this->settings['plaid_public_key']; ?>" id='linkButton'>Select Bank Account</button>
-			<button  id='sp-pay'>Pay</button>
-		</div>
+			<div>
+				<button data-publickey="<?php echo $this->settings['plaid_public_key']; ?>" id='linkButton'>Select Bank Account</button>
+				<button  id='sp-pay'>Pay</button>
+				<div class="spinner">
+				  <div class="double-bounce1"></div>
+				  <div class="double-bounce2"></div>
+				</div>
+			</div>
+		</form>
 
 		<div id="sp-response"></div>
 
 
-		<script src="https://cdn.plaid.com/link/stable/link-initialize.js"></script>
+		<!-- <script src="https://cdn.plaid.com/link/stable/link-initialize.js"></script> -->
 		<?php
 
 	}
@@ -192,8 +198,7 @@ class Wp_Stripe_Plaid_Public {
 		}
 
 		// log error if there is any. 
-		// TODO: add option to turn this on/off.
-		if ( $return['error'] ) {
+		if ( $return['error'] && $this->settings['log'] === 'on' ) {
 			$message = 'DESCRIPTION: ' . $description . ' CHARGE: ' . $amount . ' TYPE: ' . $return['error']['type'] . ' PARAM: ' . $return['error']['param'] . ' MESSAGE: ' . $return['error']['message'];
 			Wp_Stripe_Plaid_Public::write_error( $message );
 		}
@@ -232,6 +237,7 @@ class Wp_Stripe_Plaid_Public {
 		$charge = $this->call_stripe( $_POST['amount'], 'USD', $keys->stripe_bank_account_token, $_POST['description'] );
 
 		wp_send_json( $charge );
+
 		wp_die();
 
 	}

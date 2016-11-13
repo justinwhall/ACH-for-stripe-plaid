@@ -46,7 +46,16 @@
 			type    : 'POST',
 			data    : data,
 			success : function( data ){
-				console.log(data);
+				if ( data.error ) {
+					$('#sp-response').text( data.error.message );
+					$('#sp-response').addClass('error');
+					$('#sp-response').removeClass('success');
+				} else {
+					$('#sc-form').fadeTo('fast', 0);
+					$('#sp-response').text('Success. Thank you for your payment.');
+					$('#sp-response').removeClass('error');
+					$('#sp-response').addClass('success');
+				}
 			}
 		});
 	});
