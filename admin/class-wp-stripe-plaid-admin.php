@@ -56,6 +56,8 @@ class Wp_Stripe_Plaid_Admin {
 		add_action( 'admin_init', array($this, 'admin_init') );
 		add_action( 'admin_menu', array($this, 'admin_menu') );
 
+
+
 	}
 
 	/**

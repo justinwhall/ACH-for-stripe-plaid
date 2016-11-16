@@ -50,6 +50,15 @@ class Wp_Stripe_Plaid_Public {
 	private $settings;
 
 	/**
+	 * The plugin settings.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      string    $user_message  holds message(s) for user if they don't have Stripe or Plaid creds.
+	 */
+	private $user_message = array();
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -61,6 +70,7 @@ class Wp_Stripe_Plaid_Public {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->settings = get_option( 'stripe_plaid_settings' );
+		$this->has_creds();
 		add_shortcode( 'wp_stripe_plaid', array( $this, 'render_form' ) );
 
 	}
@@ -71,18 +81,6 @@ class Wp_Stripe_Plaid_Public {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Wp_Stripe_Plaid_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Wp_Stripe_Plaid_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wp-stripe-plaid-public.css', array(), $this->version, 'all' );
 
@@ -95,52 +93,80 @@ class Wp_Stripe_Plaid_Public {
 	 */
 	public function enqueue_scripts() {
 
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Wp_Stripe_Plaid_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Wp_Stripe_Plaid_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wp-stripe-plaid-public.js', array( 'jquery', 'stripe_plaid' ), $this->version, true );
 		wp_enqueue_script( 'stripe_plaid', 'https://cdn.plaid.com/link/stable/link-initialize.js', array(), null, true );
 		wp_localize_script($this->plugin_name, 'ajax_object', array( 'ajax_url' => admin_url('admin-ajax.php'), 'ajax_nonce' => wp_create_nonce('stripe_plaid_nonce') ) );
 
 	}
 
-	public function render_form(){
+	public function has_creds(){
 		
+		// check for test creds if in test mode, otherwise live key
+		if ( $this->settings['sp_environment'] === "test" ) {
+		
+			if ( !strlen( trim( $this->settings['stripe_test_api_key'] ) ) ) {
+				$this->user_message[] = 'Missing Stripe test API Key';
+			}
+
+		} else {
+
+			if ( !strlen( trim( $this->settings['stripe_live_api_key'] ) ) ) {
+				$this->user_message[] = 'Missing Stripe live API Key';
+			}
+
+		}
+
+		// Plaid keys
+		if ( !strlen( trim( $this->settings['plaid_client_id'] ) ) ) {
+			$this->user_message[] = 'Missing Plaid client ID';
+		}
+
+		if ( !strlen( trim( $this->settings['plaid_secret'] ) ) ) {
+			$this->user_message[] = 'Missing Plaid Secret';
+		}
+
+		if ( !strlen( trim( $this->settings['plaid_public_key'] ) ) ) {
+			$this->user_message[] = 'Missing Plaid public key';
+		}
+
+
+	}
+
+	public function render_form(){
+
+		if ( empty( $this->user_message ) ) {
 		?>
-		<form action="javascript:void(0);" id="sc-form">
-			<div class="sp-field-wrap">
-				<label>Amount</label><br/>
-				<input type="number" id="sp-amount">
-			</div>
-
-			<div class="sp-field-wrap">
-				<label>Note</label><br/>
-				<input type="text" id="sp-desc">
-			</div>
-
-			<div>
-				<button data-publickey="<?php echo $this->settings['plaid_public_key']; ?>" id='linkButton'>Select Bank Account</button>
-				<button  id='sp-pay'>Pay</button>
-				<div class="sp-spinner">
-				  <div class="double-bounce1"></div>
-				  <div class="double-bounce2"></div>
+			<form action="javascript:void(0);" id="sc-form">
+				<div class="sp-field-wrap">
+					<label>Amount</label><br/>
+					<input type="number" id="sp-amount">
 				</div>
-			</div>
-		</form>
 
-		<div id="sp-response"></div>
+				<div class="sp-field-wrap">
+					<label>Note</label><br/>
+					<input type="text" id="sp-desc">
+				</div>
 
+				<div>
+					<button data-publickey="<?php echo $this->settings['plaid_public_key']; ?>" id='linkButton'>Select Bank Account</button>
+					<button  id='sp-pay'>Pay</button>
+					<div class="sp-spinner">
+					  <div class="double-bounce1"></div>
+					  <div class="double-bounce2"></div>
+					</div>
+				</div>
+			</form>
 
-		<!-- <script src="https://cdn.plaid.com/link/stable/link-initialize.js"></script> -->
+			<div id="sp-response"></div>
+
 		<?php
+		} else {
+
+			foreach ( $this->user_message as $message ) {
+				echo '- ' . $message . '<br />';
+			}
+
+		}
 
 	}
 
