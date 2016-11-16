@@ -1,6 +1,6 @@
 === Plugin Name ===
 Contributors: jwind
-Donate link:http://justinwhall.com/
+Donate link: wp-stripe-plaid-ach-wordpress-plugin
 Tags: Stripe, plaid, ACH, e-commerce, ecommerce, commerce, bank, bank account
 Requires at least: 3.0.1
 Tested up to: 4.42

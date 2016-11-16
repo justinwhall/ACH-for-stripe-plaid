@@ -14,11 +14,11 @@
  *
  * @wordpress-plugin
  * Plugin Name:       WP Stripe + Plaid
- * Plugin URI:        htps://www.justinwhall.com
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
+ * Plugin URI:        https://www.justinwhall.com/wp-stripe-plaid-ach-wordpress-plugin
+ * Description:       Accept Stripe ACH payments with Stripe + Plaid.
  * Version:           1.0.0
  * Author:            Justin W Hall
- * Author URI:        htps://www.justinwhall.com
+ * Author URI:        https://www.justinwhall.com
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       wp-stripe-plaid
