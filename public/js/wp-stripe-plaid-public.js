@@ -28,42 +28,56 @@
 
 	function callPlaid() {
 
-		$('.sp-spinner').css('opacity', 1);
-		$('#pay').off('click');
-
 		// format amount
-		var amount = $( '#sp-amount' ).val() * 1;
-			amount = amount.toFixed( 2 );
-			amount = String( amount.replace( '.', '' ) );
+		var amountInt = $( '#sp-amount' ).val() * 1;
+		var amountFloat = amountInt.toFixed( 2 );
+		var amount = String( amountFloat.replace( '.', '' ) );
 
-		var data = {
-			action       : 'call_plaid',
-			public_token : opt.public_token,
-			account_id   : opt.account_id,
-			nonce        : ajax_object.ajax_nonce,
-			description  : $('#sp-desc').val(),
-			amount       : amount
-		};
+		$('#sp-response').hide();
 
-		$.ajax({
-			url     : ajax_object.ajax_url,
-			type    : 'POST',
-			data    : data,
-			success : function( data ){
-				$('.sp-spinner').css('opacity', 0);
-				if ( data.error ) {
-					$('#sp-pay').on('click', callPlaid );
-					$('#sp-response').text( data.error.message );
-					$('#sp-response').addClass('error');
-					$('#sp-response').removeClass('success');
-				} else {
-					$('#sc-form').fadeTo('fast', 0);
-					$('#sp-response').text('Success. Thank you for your payment.');
-					$('#sp-response').removeClass('error');
-					$('#sp-response').addClass('success');
+		if ( amountInt >= .50 ) {
+			$('.sp-spinner').css('opacity', 1);
+			$('#pay').off('click');
+
+			var data = {
+				action       : 'call_plaid',
+				public_token : opt.public_token,
+				account_id   : opt.account_id,
+				nonce        : ajax_object.ajax_nonce,
+				description  : $('#sp-desc').val(),
+				amount       : amount
+			};
+
+			$.ajax({
+				url     : ajax_object.ajax_url,
+				type    : 'POST',
+				data    : data,
+				success : function( data ){
+					$('.sp-spinner').css('opacity', 0);
+					if ( data.error ) {
+						addError( 'There was an error proccesing you payment.' );
+					} else {
+						$('#sc-form').fadeTo('fast', 0);
+						$('#sp-response').show();
+						$('#sp-response').text('Success. Thank you for your payment.');
+						$('#sp-response').removeClass('error');
+						$('#sp-response').addClass('success');
+					}
 				}
-			}
-		});
+			});
+
+		} else {
+			addError( 'Amount must be at least 50 cents' );
+		}
 	}
+
+	function addError( message ){
+		$('#sp-pay').on('click', callPlaid );
+		$('#sp-response').show();
+		$('#sp-response').text( message );
+		$('#sp-response').addClass('error');
+		$('#sp-response').removeClass('success');
+	}
+
 	
 })( jQuery );

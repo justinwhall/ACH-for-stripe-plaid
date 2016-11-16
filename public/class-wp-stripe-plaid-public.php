@@ -136,10 +136,10 @@ class Wp_Stripe_Plaid_Public {
 
 		if ( empty( $this->user_message ) ) {
 		?>
-			<form action="javascript:void(0);" id="sc-form">
+			<form action="javascript:void(0);" id="sc-form" novalidate>
 				<div class="sp-field-wrap">
 					<label>Amount</label><br/>
-					<input type="number" id="sp-amount">
+					<input type="number" id="sp-amount" >
 				</div>
 
 				<div class="sp-field-wrap">
