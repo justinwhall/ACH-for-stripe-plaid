@@ -13,7 +13,7 @@
  * @package           Wp_Stripe_Plaid
  *
  * @wordpress-plugin
- * Plugin Name:       WP Stripe + Plaid
+ * Plugin Name:       ACH for Stripe + Plaid
  * Plugin URI:        https://www.justinwhall.com/wp-stripe-plaid-ach-wordpress-plugin
  * Description:       Accept Stripe ACH payments with Stripe + Plaid.
  * Version:           1.0.0
