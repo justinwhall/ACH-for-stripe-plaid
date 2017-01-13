@@ -55,7 +55,7 @@
 				success : function( data ){
 					$('.sp-spinner').css('opacity', 0);
 					if ( data.error ) {
-						addError( 'There was an error proccesing you payment.' );
+						addError( 'There was an error processing you payment.' );
 					} else {
 						$('#sc-form').fadeTo('fast', 0);
 						$('#sp-response').show();

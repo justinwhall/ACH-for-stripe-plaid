@@ -1,10 +1,10 @@
 === Plugin Name ===
 Contributors: jwind
-Donate link: wp-stripe-plaid-ach-wordpress-plugin
+Donate link: https://wwww.justinwhall.com
 Tags: Stripe, plaid, ACH, e-commerce, ecommerce, commerce, bank, bank account
 Requires at least: 3.0.1
-Tested up to: 4.42
-Stable tag: 1.0.0
+Tested up to: 4.7
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,11 +22,7 @@ WordPress plugin that allows easy ACH bank transfer payments via Stripe + Plaid
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
 
-An answer to that question.
-
-= What about foo bar? =
 
 Answer to foo bar dilemma.
 
@@ -41,4 +37,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 == Changelog ==
 
 = 1.0 =
-* A change since the previous version.
+* Initial release
+
+= 1.0 =
+* Initial release

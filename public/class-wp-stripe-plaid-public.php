@@ -94,7 +94,7 @@ class Wp_Stripe_Plaid_Public {
 	public function enqueue_scripts() {
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wp-stripe-plaid-public.js', array( 'jquery', 'stripe_plaid' ), $this->version, true );
-		wp_enqueue_script( 'stripe_plaid', 'https://cdn.plaid.com/link/stable/link-initialize.js', array(), null, true );
+		wp_enqueue_script( 'stripe_plaid', 'https://cdn.plaid.com/link/v2/stable/link-initialize.js', array(), null, true );
 		wp_localize_script($this->plugin_name, 'ajax_object', array( 'ajax_url' => admin_url('admin-ajax.php'), 'ajax_nonce' => wp_create_nonce('stripe_plaid_nonce') ) );
 
 	}

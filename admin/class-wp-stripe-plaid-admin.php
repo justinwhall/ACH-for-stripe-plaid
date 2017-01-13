@@ -4,7 +4,7 @@
  * The admin-specific functionality of the plugin.
  *
  * @link       htps://www.justinwhall.com
- * @since      1.0.0
+ * @since      1.0.1
  *
  * @package    Wp_Stripe_Plaid
  * @subpackage Wp_Stripe_Plaid/admin
@@ -145,21 +145,12 @@ class Wp_Stripe_Plaid_Admin {
 	            ),
 	            array(
 	                'name'        => 'stripe_help',
-	                'desc'        => __( 'Stripe keys are located: <a href="https://dashboard.stripe.com/account/apikeys">https://dashboard.stripe.com/account/apikeys</a>', $plugin_name ),
+	                'desc'        => __( 'Stripe keys are located: <a target="_blank" href="https://dashboard.stripe.com/account/apikeys">https://dashboard.stripe.com/account/apikeys</a>', $plugin_name ),
 	                'type'        => 'html'
 	            ),
 	            array(
 	                'name'              => 'plaid_client_id',
 	                'label'             => __( 'Plaid Client ID', $plugin_name ),
-	                'desc'              => __( '', $plugin_name ),
-	                'placeholder'       => __( '', $plugin_name ),
-	                'type'              => 'text',
-	                'default'           => '',
-	                'sanitize_callback' => 'sanitize_text_field'
-	            ),
-	            array(
-	                'name'              => 'plaid_secret',
-	                'label'             => __( 'Plaid Secret', $plugin_name ),
 	                'desc'              => __( '', $plugin_name ),
 	                'placeholder'       => __( '', $plugin_name ),
 	                'type'              => 'text',
@@ -176,8 +167,17 @@ class Wp_Stripe_Plaid_Admin {
 	                'sanitize_callback' => 'sanitize_text_field'
 	            ),
 	            array(
+	                'name'              => 'plaid_secret',
+	                'label'             => __( 'Plaid Secret', $plugin_name ),
+	                'desc'              => __( '', $plugin_name ),
+	                'placeholder'       => __( '', $plugin_name ),
+	                'type'              => 'text',
+	                'default'           => '',
+	                'sanitize_callback' => 'sanitize_text_field'
+	            ),
+	            array(
 	                'name'        => 'plaid_help',
-	                'desc'        => __( 'Plaid keys are located: <a href="https://dashboard.plaid.com/account/keys">https://dashboard.plaid.com/account/keys</a>', $plugin_name ),
+	                'desc'        => __( 'Plaid keys are located: <a target="_blank" href="https://dashboard.plaid.com/account/keys">https://dashboard.plaid.com/account/keys</a>', $plugin_name ),
 	                'type'        => 'html'
 	            ),
 	            array(
