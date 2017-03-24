@@ -117,8 +117,8 @@ class Wp_Stripe_Plaid_Admin {
 	        'stripe_plaid_settings' => array(
 	        	array(
 	        	    'name'    => 'sp_environment',
-	        	    'label'   => __( 'Environment', $plugin_name ),
-	        	    'desc'    => __( 'Live or test modes?', $plugin_name ),
+	        	    'label'   => __( 'Environment', 'wp-stripe-plaid' ),
+	        	    'desc'    => __( 'Live or test modes?', 'wp-stripe-plaid' ),
 	        	    'type'    => 'radio',
 	        	    'options' => array(
 	        	        'live' => 'Live',
@@ -127,63 +127,63 @@ class Wp_Stripe_Plaid_Admin {
 	        	),
 	            array(
 	                'name'              => 'stripe_live_api_key',
-	                'label'             => __( 'Stripe Secret LIVE Key', $plugin_name ),
-	                'desc'              => __( '', $plugin_name ),
-	                'placeholder'       => __( '', $plugin_name ),
+	                'label'             => __( 'Stripe Secret LIVE Key', 'wp-stripe-plaid' ),
+	                'desc'              => __( '', 'wp-stripe-plaid' ),
+	                'placeholder'       => __( '', 'wp-stripe-plaid' ),
 	                'type'              => 'text',
 	                'default'           => '',
 	                'sanitize_callback' => 'sanitize_text_field'
 	            ),
 	            array(
 	                'name'              => 'stripe_test_api_key',
-	                'label'             => __( 'Stripe Secret TEST Key', $plugin_name ),
-	                'desc'              => __( '', $plugin_name ),
-	                'placeholder'       => __( '', $plugin_name ),
+	                'label'             => __( 'Stripe Secret TEST Key', 'wp-stripe-plaid' ),
+	                'desc'              => __( '', 'wp-stripe-plaid' ),
+	                'placeholder'       => __( '', 'wp-stripe-plaid' ),
 	                'type'              => 'text',
 	                'default'           => '',
 	                'sanitize_callback' => 'sanitize_text_field'
 	            ),
 	            array(
 	                'name'        => 'stripe_help',
-	                'desc'        => __( 'Stripe keys are located: <a target="_blank" href="https://dashboard.stripe.com/account/apikeys">https://dashboard.stripe.com/account/apikeys</a>', $plugin_name ),
+	                'desc'        => __( 'Stripe keys are located: <a target="_blank" href="https://dashboard.stripe.com/account/apikeys">https://dashboard.stripe.com/account/apikeys</a>', 'wp-stripe-plaid' ),
 	                'type'        => 'html'
 	            ),
 	            array(
 	                'name'              => 'plaid_client_id',
-	                'label'             => __( 'Plaid Client ID', $plugin_name ),
-	                'desc'              => __( '', $plugin_name ),
-	                'placeholder'       => __( '', $plugin_name ),
+	                'label'             => __( 'Plaid Client ID', 'wp-stripe-plaid' ),
+	                'desc'              => __( '', 'wp-stripe-plaid' ),
+	                'placeholder'       => __( '', 'wp-stripe-plaid' ),
 	                'type'              => 'text',
 	                'default'           => '',
 	                'sanitize_callback' => 'sanitize_text_field'
 	            ),
 	            array(
 	                'name'              => 'plaid_public_key',
-	                'label'             => __( 'Plaid Public Key', $plugin_name ),
-	                'desc'              => __( '', $plugin_name ),
-	                'placeholder'       => __( '', $plugin_name ),
+	                'label'             => __( 'Plaid Public Key', 'wp-stripe-plaid' ),
+	                'desc'              => __( '', 'wp-stripe-plaid' ),
+	                'placeholder'       => __( '', 'wp-stripe-plaid' ),
 	                'type'              => 'text',
 	                'default'           => '',
 	                'sanitize_callback' => 'sanitize_text_field'
 	            ),
 	            array(
 	                'name'              => 'plaid_secret',
-	                'label'             => __( 'Plaid Secret', $plugin_name ),
-	                'desc'              => __( '', $plugin_name ),
-	                'placeholder'       => __( '', $plugin_name ),
+	                'label'             => __( 'Plaid Secret', 'wp-stripe-plaid' ),
+	                'desc'              => __( '', 'wp-stripe-plaid' ),
+	                'placeholder'       => __( '', 'wp-stripe-plaid' ),
 	                'type'              => 'text',
 	                'default'           => '',
 	                'sanitize_callback' => 'sanitize_text_field'
 	            ),
 	            array(
 	                'name'        => 'plaid_help',
-	                'desc'        => __( 'Plaid keys are located: <a target="_blank" href="https://dashboard.plaid.com/account/keys">https://dashboard.plaid.com/account/keys</a>', $plugin_name ),
+	                'desc'        => __( 'Plaid keys are located: <a target="_blank" href="https://dashboard.plaid.com/account/keys">https://dashboard.plaid.com/account/keys</a>', 'wp-stripe-plaid' ),
 	                'type'        => 'html'
 	            ),
 	            array(
 	                'name'  => 'log',
-	                'label' => __( 'Turn on logging', $plugin_name ),
-	                'desc'  => __( 'Should not be left on indefinitely.', $plugin_name ),
+	                'label' => __( 'Turn on logging', 'wp-stripe-plaid' ),
+	                'desc'  => __( 'Should not be left on indefinitely.', 'wp-stripe-plaid' ),
 	                'type'  => 'checkbox'
 	            )
             )

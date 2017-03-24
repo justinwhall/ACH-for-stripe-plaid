@@ -135,8 +135,9 @@ class Wp_Stripe_Plaid_Public {
 	public function render_form(){
 
 		if ( empty( $this->user_message ) ) {
+			$env = ( $this->settings['sp_environment'] === 'live' ) ? 'production' : 'tartan';
 		?>
-			<form action="javascript:void(0);" id="sc-form" novalidate>
+			<form action="javascript:void(0);" id="sc-form" data-env="<?php echo $env;  ?>" novalidate>
 				<div class="sp-field-wrap">
 					<label>Amount</label><br/>
 					<input type="number" id="sp-amount" >

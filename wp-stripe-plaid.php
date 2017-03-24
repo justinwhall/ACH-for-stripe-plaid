@@ -13,12 +13,12 @@
  * @package           Wp_Stripe_Plaid
  *
  * @wordpress-plugin
- * Plugin Name:       ACH for Stripe + Plaid
- * Plugin URI:        https://www.justinwhall.com/wp-stripe-plaid-ach-wordpress-plugin
+ * Plugin Name:       LittleBot ACH for Stripe + Plaid
+ * Plugin URI:        https://www.littlbot.io/wp-stripe-plaid-ach-wordpress-plugin
  * Description:       Accept Stripe ACH payments with Stripe + Plaid.
- * Version:           1.0.1
+ * Version:           1.0.0
  * Author:            Justin W Hall
- * Author URI:        https://www.justinwhall.com
+ * Author URI:        https://www.littlebot.io
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       wp-stripe-plaid
