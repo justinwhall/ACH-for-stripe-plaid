@@ -4,7 +4,7 @@
  * The public-facing functionality of the plugin.
  *
  * @link       htps://www.justinwhall.com
- * @since      1.0.0
+ * @since      1.0.1
  *
  * @package    Wp_Stripe_Plaid
  * @subpackage Wp_Stripe_Plaid/public

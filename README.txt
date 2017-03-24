@@ -25,5 +25,9 @@ WordPress plugin that allows easy ACH bank transfer payments via Stripe + Plaid
 
 == Changelog ==
 
+= 1.0.1 =
+* updated plaid link to v2
+* plugin can now test plaid in test mode
+
 = 1.0 =
 * Initial release
