@@ -82,7 +82,7 @@ class Wp_Stripe_Plaid_Public {
 	 */
 	public function enqueue_styles() {
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wp-stripe-plaid-public.css', array(), $this->version, 'all' );
+		wp_register_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wp-stripe-plaid-public.css', array(), $this->version, 'all' );
 
 	}
 
@@ -93,8 +93,8 @@ class Wp_Stripe_Plaid_Public {
 	 */
 	public function enqueue_scripts() {
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wp-stripe-plaid-public.js', array( 'jquery', 'stripe_plaid' ), $this->version, true );
-		wp_enqueue_script( 'stripe_plaid', 'https://cdn.plaid.com/link/v2/stable/link-initialize.js', array(), null, true );
+		wp_register_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wp-stripe-plaid-public.js', array( 'jquery', 'stripe_plaid' ), $this->version, true );
+		wp_register_script( 'stripe_plaid', 'https://cdn.plaid.com/link/v2/stable/link-initialize.js', array(), null, true );
 		wp_localize_script($this->plugin_name, 'ajax_object', array( 'ajax_url' => admin_url('admin-ajax.php'), 'ajax_nonce' => wp_create_nonce('stripe_plaid_nonce') ) );
 
 	}
@@ -134,59 +134,109 @@ class Wp_Stripe_Plaid_Public {
 
 	public function render_form(){
 
-		if ( empty( $this->user_message ) ) {
-			$env = ( $this->settings['sp_environment'] === 'live' ) ? 'production' : 'tartan';
-		?>
-			<form action="javascript:void(0);" id="sc-form" data-env="<?php echo $env;  ?>" novalidate>
-				<div class="sp-field-wrap">
-					<label>Amount</label><br/>
-					<input type="number" id="sp-amount" >
-				</div>
+		if ( !is_user_logged_in() ) {
+			printf( '<div class="lb-ach-not-logged-in" ><a href="%s">Login to make a paymet</a></div>', wp_login_url( get_the_permalink() ) );
+		} 
 
-				<div class="sp-field-wrap">
-					<label>Note</label><br/>
-					<input type="text" id="sp-desc">
-				</div>
+		else{
 
-				<div>
-					<button data-publickey="<?php echo $this->settings['plaid_public_key']; ?>" id='linkButton'>Select Bank Account</button>
-					<button  id='sp-pay'>Pay</button>
-					<div class="sp-spinner">
-					  <div class="double-bounce1"></div>
-					  <div class="double-bounce2"></div>
+			wp_enqueue_script( $this->plugin_name );
+			wp_enqueue_script( 'stripe_plaid' );
+			wp_enqueue_style( $this->plugin_name );
+
+			if ( empty( $this->user_message ) ) {
+				$env = ( $this->settings['sp_environment'] === 'live' ) ? 'production' : 'sandbox';
+
+				$user = wp_get_current_user();
+			?>
+				<form action="javascript:void(0);" id="sc-form" data-env="<?php echo $env;  ?>" novalidate>
+
+					<input id="lb-ach-email" type="hidden" value="<?php echo $user->data->user_email; ?>" >
+
+					<div class="sp-field-wrap">
+						<label>Amount</label><br/>
+						<input type="number" id="sp-amount" >
 					</div>
-				</div>
-			</form>
 
-			<div id="sp-response"></div>
+					<div class="sp-field-wrap">
+						<label>Note</label><br/>
+						<input type="text" id="sp-desc">
+					</div>
 
-		<?php
-		} else {
+					<div>
+						<button data-publickey="<?php echo $this->settings['plaid_public_key']; ?>" id='linkButton'>Select Bank Account</button>
+						<button  id='sp-pay'>Pay</button>
+						<div class="sp-spinner">
+						  <div class="double-bounce1"></div>
+						  <div class="double-bounce2"></div>
+						</div>
+					</div>
+				</form>
 
-			foreach ( $this->user_message as $message ) {
-				echo '- ' . $message . '<br />';
+				<div id="sp-response"></div>
+
+			<?php
+			} else {
+
+				foreach ( $this->user_message as $message ) {
+					echo '- ' . $message . '<br />';
+				}
+
 			}
 
 		}
 
 	}
 
-	public function call_stripe( $amount, $currency, $source, $description ){
+	public function call_stripe( $amount, $currency, $source, $description, $email ){
 
 		// Live or test?
 		$stripe_key = ( $this->settings['sp_environment'] === 'live' ) ? $this->settings['stripe_live_api_key'] : $this->settings['stripe_test_api_key'];
+		$meta_key = '_lb_ach_' . $this->settings['sp_environment'] . '_customer';
+
 		\Stripe\Stripe::setApiKey( $stripe_key );
 
 		$return = array( 'error' => false );
 
 		try {
 
-		  $charge = \Stripe\Charge::create(array(
-		    "amount"      => $amount,
-		    "currency"    => $currency,
-		    "source"      => $source,
-		    "description" => $description
-		  ));
+			$user = wp_get_current_user();
+			$customer_id = get_user_meta( $user->ID, $meta_key, true );
+
+			// Returning customer - charge the customer
+			if ( $customer_id ) {
+				
+				$charge = \Stripe\Charge::create(array(
+				  "amount" => $amount,
+				  "currency" => $currency,
+				  "customer" => $customer_id,
+				  "description" => $description
+				));
+
+			} 
+			// New customer. Create, charge and store customer token.
+			else {
+
+				// Create a Customer:
+				$customer = \Stripe\Customer::create(array(
+				  "email" => $email,
+				  "source" => $source,
+				  "description" => 'WordPress Login: ' . $user->user_login
+				));
+
+				// Charge the Customer instead of the card:
+				$charge = \Stripe\Charge::create(array(
+				  "amount" => $amount,
+				  "currency" => $currency,
+				  "customer" => $customer->id,
+				  "description" => $description
+				));
+
+				// save customer meta
+				add_user_meta( get_current_user_id(), $meta_key, $customer->id, true );
+			}
+
+
 
 		} catch(\Stripe\Error\Card $e) {
 		  
@@ -238,19 +288,22 @@ class Wp_Stripe_Plaid_Public {
 
 		check_ajax_referer('stripe_plaid_nonce', 'nonce');
 
+		$env = ( $this->settings['sp_environment'] === 'live' ) ? 'production' : 'sandbox';
+
 		$data = array(
 	        'client_id'    => $this->settings['plaid_client_id'],
 	        'secret'       => $this->settings['plaid_secret'],
-	        'public_token' => $_POST['public_token'],
-	        'account_id'   => $_POST['account_id']
+	        'public_token' => $_POST['public_token']
+	        // 'account_id'   => $_POST['account_id']
 		 );
 
-		$string = http_build_query( $data );
+		$string = json_encode(  $data );
 
 		//initialize session
-		$ch = curl_init( "https://tartan.plaid.com/exchange_token" );
+		$ch = curl_init( "https://" . $env . ".plaid.com/item/public_token/exchange" );
 
 		//set options
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 		curl_setopt( $ch, CURLOPT_POST, true );
 		curl_setopt( $ch, CURLOPT_POSTFIELDS, $string );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
@@ -261,7 +314,33 @@ class Wp_Stripe_Plaid_Public {
 		//close session
 		curl_close( $ch );
 
-		$charge = $this->call_stripe( $_POST['amount'], 'USD', $keys->stripe_bank_account_token, $_POST['description'] );
+		$data = array(
+	        'client_id'    => $this->settings['plaid_client_id'],
+	        'secret'       => $this->settings['plaid_secret'],
+	        'access_token' => $keys->access_token,
+	        'account_id'   => $_POST['account_id']
+		 );
+
+		$string = json_encode(  $data );
+
+
+		//initialize session
+		$ch2 = curl_init( "https://" . $env . ".plaid.com/processor/stripe/bank_account_token/create" );
+
+		//set options
+		curl_setopt($ch2, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+		curl_setopt( $ch2, CURLOPT_POST, true );
+		curl_setopt( $ch2, CURLOPT_POSTFIELDS, $string );
+		curl_setopt( $ch2, CURLOPT_RETURNTRANSFER, true );
+
+		//execute session
+		$btoken = curl_exec( $ch2 );
+		$btoken = json_decode( $btoken );
+		//close session
+		curl_close( $ch2 );
+
+
+		$charge = $this->call_stripe( $_POST['amount'], 'USD', $btoken->stripe_bank_account_token, $_POST['description'], $_POST['email'] );
 
 		wp_send_json( $charge );
 

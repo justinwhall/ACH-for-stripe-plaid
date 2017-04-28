@@ -6,6 +6,8 @@
  	// Plaid Link
 	var  linkHandler = Plaid.create({
 		  env: $('#sc-form').data('env'),
+		  // env: 'sandbox',
+		  apiVersion:'v2',
 		  clientName: 'Stripe / Plaid Test',
 		  key: $('#linkButton').data( 'publickey' ),
 		  product: 'auth',
@@ -15,8 +17,6 @@
 		    $('#sp-pay').show();
 		    opt.public_token = public_token;
 		    opt.account_id = metadata.account_id;
-
-		    console.log(opt);
 		  },
 	});
 
@@ -47,10 +47,9 @@
 				account_id   : opt.account_id,
 				nonce        : ajax_object.ajax_nonce,
 				description  : $('#sp-desc').val(),
+				email        : $('#lb-ach-email').val(),
 				amount       : amount
 			};
-
-			console.log(ajax_object.ajax_url);
 
 			$.ajax({
 				url     : ajax_object.ajax_url,

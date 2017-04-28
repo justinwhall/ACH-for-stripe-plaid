@@ -3,8 +3,8 @@ Contributors: jwind
 Donate link: https://www.littlebot.io/make-a-donation/
 Tags: Stripe, plaid, ACH, e-commerce, ecommerce, commerce, bank, bank account
 Requires at least: 3.0.1
-Tested up to: 4.7
-Stable tag: 1.0.1
+Tested up to: 4.7.3
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,6 +24,10 @@ WordPress plugin that allows easy ACH bank transfer payments via Stripe + Plaid
 == Screenshots ==
 
 == Changelog ==
+
+= 1.1.0 =
+* Updated plaid environments to sandbox/production
+* Payments now create a customers prior to charge allowing you to create subscriptions in the Stripe Admin or perform and customer action you'd like. 
 
 = 1.0.1 =
 * updated plaid link to v2
