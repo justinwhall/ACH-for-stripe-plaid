@@ -1,0 +1,80 @@
+#sp-pay{
+	display: none;
+}
+.sp-field-wrap label{
+	margin-bottom: 0;
+}
+.sp-field-wrap{
+	margin-bottom: 10px;
+}
+#sp-response{
+	font-size: .9em;
+	padding: 8px 10px;
+	display: inline-block;
+	margin-top: 10px;
+}
+#sp-response.error{
+	color: #A40003;
+	padding: 8px 10px;
+	border: 2px solid #9E0103;
+	background: #FD7670;
+}
+#sp-response.success{
+	color: #168001;
+	padding: 8px 10px;
+	border: 2px solid #168001;
+	background: #e6f9e3;
+}
+.loader,
+.loader:before,
+.loader:after {
+  border-radius: 50%;
+  width: 2.5em;
+  height: 2.5em;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation: load7 1.8s infinite ease-in-out;
+  animation: load7 1.8s infinite ease-in-out;
+}
+.sp-spinner {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  margin: 10px 10px -3px 10px;
+  display: inline-block;
+  opacity: 0;
+}
+
+.double-bounce1, .double-bounce2 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #2C61CD;
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+  
+  -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+  animation: sk-bounce 2.0s infinite ease-in-out;
+}
+
+.double-bounce2 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+@-webkit-keyframes sk-bounce {
+  0%, 100% { -webkit-transform: scale(0.0) }
+  50% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bounce {
+  0%, 100% { 
+    transform: scale(0.0);
+    -webkit-transform: scale(0.0);
+  } 50% { 
+    transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+  }
+}
