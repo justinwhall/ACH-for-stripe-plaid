@@ -118,11 +118,12 @@ class Wp_Stripe_Plaid_Admin {
 				array(
 					'name'    => 'sp_environment',
 					'label'   => __( 'Environments', 'wp-stripe-plaid' ),
-					'desc'    => __( 'Live or test modes?', 'wp-stripe-plaid' ),
+					'desc'    => __( 'FYI, Plaid allows for 100 live bank accounts in "development" mode. Selecting "Live (Stripe) Development (Plaid)" will use the live Stripe keys and make a live charge to a bank account.', 'wp-stripe-plaid' ),
 					'type'    => 'radio',
 					'options' => array(
 						'live' => 'Live (Stripe) Production (Plaid)',
-						'test'  => 'Test (Stripe) Sandbox (Plaid)'
+						'development'  => 'Live (Stripe) Development (Plaid)',
+						'test'  => 'Test (Stripe) Sandbox (Plaid)',
 					)
 				),
 				array(

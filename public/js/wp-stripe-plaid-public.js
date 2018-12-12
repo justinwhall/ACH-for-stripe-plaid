@@ -6,7 +6,6 @@
 	// Plaid Link
 	var linkHandler = Plaid.create( {
 		env: $( '#sc-form' ).data( 'env' ),
-		// env: 'sandbox',
 		apiVersion: 'v2',
 		clientName: 'Stripe / Plaid Test',
 		key: $( '#linkButton' ).data( 'publickey' ),
@@ -17,8 +16,6 @@
 			$( '#sp-pay' ).show();
 			opt.public_token = public_token;
 			opt.account_id = metadata.account_id;
-			// console.log(opt);
-			// console.log(metadata);
 		},
 	} );
 

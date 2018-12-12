@@ -147,7 +147,14 @@ class Wp_Stripe_Plaid_Public {
 			wp_enqueue_style( $this->plugin_name );
 
 			if ( empty( $this->user_message ) ) {
-				$env = ( $this->settings['sp_environment'] === 'live' ) ? 'production' : 'sandbox';
+				if ( $this->settings['sp_environment'] === 'live' ) {
+					$env = 'Production';
+				} elseif ( $this->settings['sp_environment'] === 'test' ) {
+					$env = 'sandbox';
+				} else {
+					$env = 'development';
+				}
+
 				$amount = ( isset( $_GET['amount']  ) ) ? (float) $_GET['amount'] : '';
 				$user = wp_get_current_user();
 				ob_start();
@@ -195,7 +202,7 @@ class Wp_Stripe_Plaid_Public {
 	public function call_stripe( $amount, $currency, $token, $description, $email ){
 
 		// Live or test?
-		$stripe_key = ( $this->settings['sp_environment'] === 'live' ) ? $this->settings['stripe_live_api_key'] : $this->settings['stripe_test_api_key'];
+		$stripe_key = ( $this->settings['sp_environment'] === 'live' || $this->settings['sp_environment'] === 'development' ) ? $this->settings['stripe_live_api_key'] : $this->settings['stripe_test_api_key'];
 		$meta_key = '_lb_ach_' . $this->settings['sp_environment'] . '_customer';
 		$current_user = wp_get_current_user();
 		$return = array( 'error' => false );
@@ -304,7 +311,18 @@ class Wp_Stripe_Plaid_Public {
 
 		check_ajax_referer('stripe_plaid_nonce', 'nonce');
 
+		$env_setting = $this->settings['sp_environment'];
+
 		$env = ( $this->settings['sp_environment'] === 'live' ) ? 'production' : 'sandbox';
+
+		if ( $env_setting === 'live' ) {
+			$env = 'production';
+		} elseif ( $env_setting === 'development' ) {
+			$env = 'development';
+		} else {
+			$env = 'sandbox';
+		}
+
 		$headers[] = 'Content-Type: application/json';
 
 		$params = array(
