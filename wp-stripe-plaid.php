@@ -29,6 +29,39 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+if ( ! function_exists( 'afsp_fs' ) ) {
+	// Create a helper function for easy SDK access.
+	function afsp_fs() {
+		global $afsp_fs;
+
+		if ( ! isset( $afsp_fs ) ) {
+			// Include Freemius SDK.
+			require_once dirname(__FILE__) . '/freemius/start.php';
+
+			$afsp_fs = fs_dynamic_init( array(
+				'id'                  => '3020',
+				'slug'                => 'ach-for-stripe-plaid',
+				'type'                => 'plugin',
+				'public_key'          => 'pk_1466966247dc787c053f41ed99e0c',
+				'is_premium'          => false,
+				'has_addons'          => false,
+				'has_paid_plans'      => false,
+				'menu'                => array(
+					'account'        => false,
+					'contact'        => false,
+				),
+			) );
+		}
+
+		return $afsp_fs;
+	}
+
+	// Init Freemius.
+	afsp_fs();
+	// Signal that SDK was initiated.
+	do_action( 'afsp_fs_loaded' );
+}
+
 define( 'WP_STRIPE_PLAID_PATH', plugin_dir_path( __FILE__ ) );
 /**
  * The code that runs during plugin activation.
