@@ -56,8 +56,6 @@ class Wp_Stripe_Plaid_Admin {
 		add_action( 'admin_init', array($this, 'admin_init') );
 		add_action( 'admin_menu', array($this, 'admin_menu') );
 
-
-
 	}
 
 	/**
@@ -124,7 +122,17 @@ class Wp_Stripe_Plaid_Admin {
 						'live' => 'Live (Stripe) Production (Plaid)',
 						'development'  => 'Live (Stripe) Development (Plaid)',
 						'test'  => 'Test (Stripe) Sandbox (Plaid)',
-					)
+					),
+				),
+				array(
+					'name'    => 'form_auth',
+					'label'   => __( 'Form Visablility', 'wp-stripe-plaid' ),
+					'desc'    => __( 'Require users to be logged in to make a payment.', 'wp-stripe-plaid' ),
+					'type'    => 'radio',
+					'options' => array(
+						'public' => 'No',
+						'private'  => 'Yes',
+					),
 				),
 				array(
 					'name'              => 'stripe_live_api_key',
@@ -133,7 +141,7 @@ class Wp_Stripe_Plaid_Admin {
 					'placeholder'       => __( '', 'wp-stripe-plaid' ),
 					'type'              => 'text',
 					'default'           => '',
-					'sanitize_callback' => 'sanitize_text_field'
+					'sanitize_callback' => 'sanitize_text_field',
 				),
 				array(
 					'name'              => 'stripe_test_api_key',
@@ -142,7 +150,7 @@ class Wp_Stripe_Plaid_Admin {
 					'placeholder'       => __( '', 'wp-stripe-plaid' ),
 					'type'              => 'text',
 					'default'           => '',
-					'sanitize_callback' => 'sanitize_text_field'
+					'sanitize_callback' => 'sanitize_text_field',
 				),
 				array(
 					'name'        => 'stripe_help',
@@ -156,7 +164,7 @@ class Wp_Stripe_Plaid_Admin {
 					'placeholder'       => __( '', 'wp-stripe-plaid' ),
 					'type'              => 'text',
 					'default'           => '',
-					'sanitize_callback' => 'sanitize_text_field'
+					'sanitize_callback' => 'sanitize_text_field',
 				),
 				array(
 					'name'              => 'plaid_public_key',
@@ -165,7 +173,7 @@ class Wp_Stripe_Plaid_Admin {
 					'placeholder'       => __( '', 'wp-stripe-plaid' ),
 					'type'              => 'text',
 					'default'           => '',
-					'sanitize_callback' => 'sanitize_text_field'
+					'sanitize_callback' => 'sanitize_text_field',
 				),
 				array(
 					'name'              => 'plaid_secret',
@@ -174,25 +182,30 @@ class Wp_Stripe_Plaid_Admin {
 					'placeholder'       => __( '', 'wp-stripe-plaid' ),
 					'type'              => 'text',
 					'default'           => '',
-					'sanitize_callback' => 'sanitize_text_field'
+					'sanitize_callback' => 'sanitize_text_field',
 				),
 				array(
 					'name'        => 'plaid_help',
 					'desc'        => __( 'Plaid keys are located: <a target="_blank" href="https://dashboard.plaid.com/account/keys">https://dashboard.plaid.com/account/keys</a>', 'wp-stripe-plaid' ),
-					'type'        => 'html'
+					'type'        => 'html',
 				),
 				array(
 					'name'  => 'log',
 					'label' => __( 'Turn on logging', 'wp-stripe-plaid' ),
 					'desc'  => __( 'Should not be left on indefinitely.', 'wp-stripe-plaid' ),
-					'type'  => 'checkbox'
-				)
+					'type'  => 'checkbox',
+				),
 			)
 
 		);
 		return $settings_fields;
 	}
 
+	/**
+	 * Renders settings page.
+	 *
+	 * @return void
+	 */
 	public function plugin_page() {
 		echo '<div class="wrap">';
 		$this->settings_api->show_navigation();

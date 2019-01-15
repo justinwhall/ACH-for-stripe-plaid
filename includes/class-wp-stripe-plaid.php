@@ -69,12 +69,25 @@ class Wp_Stripe_Plaid {
 	public function __construct() {
 
 		$this->plugin_name = 'wp-stripe-plaid';
-		$this->version = '1.0.0';
+		$this->version = '1.2.3';
 
+		$this->maybe_update_db();
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+
+	}
+
+	private function maybe_update_db() {
+		$db_version = get_option( 'stripe_plaid_settings_db' );
+
+		if ( ! $db_version || $db_version !== $this->version ) {
+			$options = get_option( 'stripe_plaid_settings' );
+			$options['form_auth'] = 'private';
+			update_option( 'stripe_plaid_settings', $options, true );
+			update_option( 'stripe_plaid_settings_db', $this->version, true );
+		}
 
 	}
 

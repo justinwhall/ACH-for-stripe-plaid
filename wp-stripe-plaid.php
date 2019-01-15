@@ -63,6 +63,7 @@ if ( ! function_exists( 'afsp_fs' ) ) {
 }
 
 define( 'WP_STRIPE_PLAID_PATH', plugin_dir_path( __FILE__ ) );
+define( 'WP_STRIPE_PLAID_DB_VERSION', '1.2.3' );
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-wp-stripe-plaid-activator.php

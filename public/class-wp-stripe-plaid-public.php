@@ -59,6 +59,20 @@ class Wp_Stripe_Plaid_Public {
 	private $user_message = array();
 
 	/**
+	 * Holds array of customers.
+	 *
+	 * @var array
+	 */
+	private $stripe_customers = array();
+
+	/**
+	 * Holds secret key.
+	 *
+	 * @var [type]
+	 */
+	private $stripe_key;
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -66,13 +80,50 @@ class Wp_Stripe_Plaid_Public {
 	 * @param      string    $version    The version of this plugin.
 	 */
 	public function __construct( $plugin_name, $version ) {
-
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->settings = get_option( 'stripe_plaid_settings' );
+		$this->set_stripe_key();
+		$this->get_all_stripe_customers( false );
 		$this->has_creds();
 		add_shortcode( 'wp_stripe_plaid', array( $this, 'render_form' ) );
+	}
 
+	/**
+	 * Gets all Stripe customers.
+	 * Recursively calls the customers endpoint if more than 100 customers exist.
+	 *
+	 * @param [type] $start_after
+	 * @return void
+	 */
+	public function get_all_stripe_customers( $start_after ) {
+		$args = [
+			'limit' => 100,
+		];
+
+		if ( $start_after ) {
+			$args['starting_after'] = $start_after;
+		}
+
+		\Stripe\Stripe::setApiKey( $this->stripe_key );
+		$customers = \Stripe\Customer::all( $args );
+		// Add stripe customer results to $stripe_customers.
+		$this->stripe_customers = array_merge( $this->stripe_customers, $customers->data );
+
+		if ( $customers->has_more ) {
+			$last_customer = end( $customers->data );
+			$this->get_all_stripe_customers( $last_customer->id );
+		}
+
+	}
+
+	/**
+	 * Sets the Stripe key based on ENV
+	 *
+	 * @return void
+	 */
+	public function set_stripe_key() {
+		$this->stripe_key = ( $this->settings['sp_environment'] === 'live' || $this->settings['sp_environment'] === 'development' ) ? $this->settings['stripe_live_api_key'] : $this->settings['stripe_test_api_key'];
 	}
 
 	/**
@@ -99,6 +150,11 @@ class Wp_Stripe_Plaid_Public {
 
 	}
 
+	/**
+	 * Logic to check for keys.
+	 *
+	 * @return void
+	 */
 	public function has_creds(){
 
 		// check for test creds if in test mode, otherwise live key
@@ -116,7 +172,7 @@ class Wp_Stripe_Plaid_Public {
 
 		}
 
-		// Plaid keys
+		// Plaid keys.
 		if ( !strlen( trim( $this->settings['plaid_client_id'] ) ) ) {
 			$this->user_message[] = 'Missing Plaid client ID';
 		}
@@ -132,15 +188,20 @@ class Wp_Stripe_Plaid_Public {
 
 	}
 
-	public function render_form(){
+	/**
+	 * Renders the payment form
+	 *
+	 * @return void
+	 */
+	public function render_form() {
 
-		if ( !is_user_logged_in() ) {
+		$show_form = ( is_user_logged_in() && $this->settings['form_auth'] === 'private' || $this->settings['form_auth'] === 'public' ) ? true : false;
+
+		if ( ! $show_form ) {
 			ob_start();
 			printf( '<div class="lb-ach-not-logged-in" ><a href="%s">Login to make a payment</a></div>', wp_login_url( get_the_permalink() ) );
 			return ob_get_clean();
-		}
-
-		else{
+		} else {
 
 			wp_enqueue_script( $this->plugin_name );
 			wp_enqueue_script( 'stripe_plaid' );
@@ -155,26 +216,35 @@ class Wp_Stripe_Plaid_Public {
 					$env = 'development';
 				}
 
+				// Do we have a param with the amount?
 				$amount = ( isset( $_GET['amount']  ) ) ? (float) $_GET['amount'] : '';
-				$user = wp_get_current_user();
+
+				if ( is_user_logged_in() ) {
+					$user = wp_get_current_user();
+				}
 				ob_start();
 			?>
 				<form action="javascript:void(0);" id="sc-form" data-env="<?php echo $env;  ?>" novalidate>
 
-					<input id="lb-ach-email" type="hidden" value="<?php echo $user->data->user_email; ?>" >
+					<?php if ( is_user_logged_in() ) : ?>
+						<input id="lb-ach-email" type="hidden" value="<?php echo $user->data->user_email; ?>" >
+					<?php else : ?>
+						<label for="lb-ach-email">Email *</label><br/>
+						<input id="lb-ach-email" type="email" value="" placeholer="youremail@example.email" >
+					<?php endif; ?>
 
 					<div class="sp-field-wrap">
-						<label>Amount</label><br/>
+						<label for="sp-amount">Amount *</label><br/>
 						<input type="number" value="<?php echo $amount; ?>" id="sp-amount" >
 					</div>
 
 					<div class="sp-field-wrap">
-						<label>Note</label><br/>
+						<label for="sp-desc">Note</label><br/>
 						<input type="text" id="sp-desc">
 					</div>
 
 					<div>
-						<button data-publickey="<?php echo $this->settings['plaid_public_key']; ?>" id='linkButton'>Select Bank Account</button>
+						<button data-publickey="<?php echo esc_attr( $this->settings['plaid_public_key'] ); ?>" id='linkButton'>Select Bank Account</button>
 						<button  id='sp-pay'>Pay</button>
 						<div class="sp-spinner">
 						  <div class="double-bounce1"></div>
@@ -199,100 +269,152 @@ class Wp_Stripe_Plaid_Public {
 
 	}
 
-	public function call_stripe( $amount, $currency, $token, $description, $email ){
+	/**
+	 * Gets a customer from the $this->stripe_customers by email or returns false.
+	 *
+	 * @param string $email
+	 * @return mixed
+	 */
+	public function get_customer_by_email( $email ) {
+		foreach ($this->stripe_customers as $customer) {
+			if ( $customer->email === $email ) {
+				return $customer;
+			}
+		}
 
-		// Live or test?
-		$stripe_key = ( $this->settings['sp_environment'] === 'live' || $this->settings['sp_environment'] === 'development' ) ? $this->settings['stripe_live_api_key'] : $this->settings['stripe_test_api_key'];
-		$meta_key = '_lb_ach_' . $this->settings['sp_environment'] . '_customer';
-		$current_user = wp_get_current_user();
+		return false;
+	}
+
+	/**
+	 * Calls Stripe after connecting to Plaid
+	 *
+	 * @param int $amount
+	 * @param string $currency
+	 * @param string $token
+	 * @param string $description
+	 * @param string $email
+	 * @return void
+	 */
+	public function call_stripe( $amount, $currency, $token, $description, $email ) {
+
+		\Stripe\Stripe::setApiKey( $this->stripe_key );
+
 		$return = array( 'error' => false );
+		$desc = 'Charged as an unauthenticated user';
+		$customer = false;
+		$stripe_customer_id = false;
 
-		\Stripe\Stripe::setApiKey( $stripe_key );
-		$stripe_customer_id = get_user_meta( $current_user->ID, $meta_key, true );
+		// If they are logged in, create some defaults.
+		if ( is_user_logged_in() ) {
+			$meta_key = '_lb_ach_' . $this->settings['sp_environment'] . '_customer';
+			$current_user = wp_get_current_user();
+			$email = $current_user->user_email;
+			$wp_user = $current_user->user_login;
+			$desc = 'WordPress User: ' . $current_user->user_login;
+			$stripe_customer_id = get_user_meta( $current_user->ID, $meta_key, true );
 
+			// If we have a Stripe ID but no customer object, TRY to get customer by ID.
+			if ( $stripe_customer_id ) {
+				try {
+					$customer = \Stripe\Customer::retrieve( $stripe_customer_id );
+				} catch ( \Stripe\Error\Base $e ) {
+					$customer = false;
+				}
+			}
 
-		if (!empty($stripe_customer_id)) {
-			$customer = \Stripe\Customer::retrieve($stripe_customer_id);
-		} else {
-			// Create a Customer:
+			// Stripe will return deleted customers. We do not want these.
+			if ( isset( $customer->deleted ) ) {
+				$customer = false;
+			}
+		}
+
+		// Check with Stripe to see if we have a customer with this email.
+		if ( ! $customer ) {
+			$customer = $this->get_customer_by_email( $email );
+			$stripe_customer_id = $customer->id;
+		}
+
+		// If we still have not identified a customer, create one.
+		if ( ! $customer ) {
+
+			// Create a Customer.
 			$customer = \Stripe\Customer::create(array(
-				'email' => $current_user->user_email,
+				'email' => $email,
 				'source' => $token,
-				'description' => 'WordPress User: ' . $current_user->user_login
+				'description' => $desc,
 			));
 
 			$stripe_customer_id = $customer->id;
 
-			//Add to user's meta
+			// Add to user's meta.
 			update_user_meta($current_user->ID, $meta_key, $stripe_customer_id);
 		}
 
-
-
-		// Figure out if the user is using a stored bank account or a new bank account by comparing bank account fingerprints
-		$token_data = \Stripe\Token::retrieve($token);
-
+		// Figure out if the user is using a stored bank account or a new bank account by comparing bank account fingerprints.
+		$token_data = \Stripe\Token::retrieve( $token );
 		$this_bank_account = $token_data['bank_account'];
 		$cust_banks = $customer['sources']['data'];
 
-		foreach ($cust_banks as $bank) {
-			if ($bank['fingerprint'] == $this_bank_account['fingerprint']) {
+		foreach ( $cust_banks as $bank ) {
+			if ( $bank['fingerprint'] == $this_bank_account['fingerprint'] ) {
 				$source = $bank['id'];
 			}
 		}
 
-		// If this bank is not an existing one, we'll add it
-		if ($source == false) {
-			$new_source = $customer->sources->create(array('source' => $token));
+		// If this bank is not an existing one, we'll add it.
+		if ( $source === false ) {
+			$new_source = $customer->sources->create( array( 'source' => $token ) );
 			$source = $new_source['id'];
 		}
 
-		// Try to authorize the bank
+		// Try to authorize the bank.
 		$charge_args = array(
 			'amount' => $amount,
 			'currency' => 'usd',
 			'description' => $description,
 			'customer' => $stripe_customer_id,
-			'source' => $source
-		 );
+			'source' => $source,
+		);
 
-
+		/**
+		 * Let's Charge.
+		 */
 		try {
 
-			$charge = \Stripe\Charge::create($charge_args);
+			$charge = \Stripe\Charge::create( $charge_args );
 
 		} catch(\Stripe\Error\Card $e) {
 
-			// Since it's a decline, \Stripe\Error\Card will be caught
+			// Since it's a decline, \Stripe\Error\Card will be caught.
 			$return = $e->getJsonBody();
 
 		} catch (\Stripe\Error\RateLimit $e) {
-			// Too many requests made to the API too quickly
+			// Too many requests made to the API too quickly.
 			$return = $e->getJsonBody();
 
 		} catch (\Stripe\Error\InvalidRequest $e) {
 
-			// Invalid parameters were supplied to Stripe's API
+			// Invalid parameters were supplied to Stripe's API.
 			$return = $e->getJsonBody();
 
 		} catch (\Stripe\Error\Authentication $e) {
 
-			// Authentication with Stripe's API failed
+			// Authentication with Stripe's API failed.
 			$return = $e->getJsonBody();
 
 		} catch (\Stripe\Error\ApiConnection $e) {
 
-			// Network communication with Stripe failed
+			// Network communication with Stripe failed.
 			$return = $e->getJsonBody();
 
 		} catch (\Stripe\Error\Base $e) {
 
-			// Display a very generic error to the user, and maybe send
+			// Display a very generic error to the user, and maybe send.
 			$return = $e->getJsonBody();
 
 		} catch (Exception $e) {
 
-			// Something else happened, completely unrelated to Stripe
+			// Something else happened, completely unrelated to Stripe.
 			$return = $e->getJsonBody();
 
 		}
@@ -307,6 +429,11 @@ class Wp_Stripe_Plaid_Public {
 
 	}
 
+	/**
+	 * Enables Plaid link
+	 *
+	 * @return void
+	 */
 	public function call_plaid(){
 
 		check_ajax_referer('stripe_plaid_nonce', 'nonce');
@@ -328,7 +455,7 @@ class Wp_Stripe_Plaid_Public {
 		$params = array(
 			'client_id'    => $this->settings['plaid_client_id'],
 			'secret'       => $this->settings['plaid_secret'],
-			'public_token' => $_POST['public_token']
+			'public_token' => $_POST['public_token'],
 		 );
 
 		$ch = curl_init();
@@ -381,6 +508,12 @@ class Wp_Stripe_Plaid_Public {
 
 	}
 
+	/**
+	 * Writes an error to the error log.
+	 *
+	 * @param string $message
+	 * @return void
+	 */
 	static function write_error( $message ) {
 
 		$ts = date( '[ m.d.Y | H:i:s e ]' );
