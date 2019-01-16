@@ -84,7 +84,6 @@ class Wp_Stripe_Plaid_Public {
 		$this->version = $version;
 		$this->settings = get_option( 'stripe_plaid_settings' );
 		$this->set_stripe_key();
-		$this->get_all_stripe_customers( false );
 		$this->has_creds();
 		add_shortcode( 'wp_stripe_plaid', array( $this, 'render_form' ) );
 	}
@@ -194,7 +193,6 @@ class Wp_Stripe_Plaid_Public {
 	 * @return void
 	 */
 	public function render_form() {
-
 		$show_form = ( is_user_logged_in() && $this->settings['form_auth'] === 'private' || $this->settings['form_auth'] === 'public' ) ? true : false;
 
 		if ( ! $show_form ) {
@@ -203,6 +201,7 @@ class Wp_Stripe_Plaid_Public {
 			return ob_get_clean();
 		} else {
 
+			Wp_Stripe_Plaid_Public::get_all_stripe_customers( false );
 			wp_enqueue_script( $this->plugin_name );
 			wp_enqueue_script( 'stripe_plaid' );
 			wp_enqueue_style( $this->plugin_name );

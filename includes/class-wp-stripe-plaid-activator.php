@@ -30,18 +30,22 @@ class Wp_Stripe_Plaid_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
-		
-		$settings = array(
-			'sp_environment'      => 'live',
-			'stripe_live_api_key' => '',
-			'stripe_test_api_key' => '',
-			'plaid_client_id'     => '' ,
-			'plaid_secret'        => '' ,
-			'plaid_public_key'    => '' ,
-			'log'                 => 'off'
-		);
 
-		update_option( 'stripe_plaid_settings', $settings );
+		$options = get_option( 'stripe_plaid_settings' );
+
+		if ( ! $options ) {
+			$settings = array(
+				'sp_environment'      => 'live',
+				'stripe_live_api_key' => '',
+				'stripe_test_api_key' => '',
+				'plaid_client_id'     => '' ,
+				'plaid_secret'        => '' ,
+				'plaid_public_key'    => '' ,
+				'log'                 => 'off',
+			);
+
+			update_option( 'stripe_plaid_settings', $settings );
+		}
 	}
 
 }
