@@ -42,6 +42,7 @@ class Wp_Stripe_Plaid_Activator {
 				'plaid_secret'        => '',
 				'plaid_public_key'    => '',
 				'log'                 => 'off',
+				'form_auth'           => 'public',
 			);
 
 			update_option( 'stripe_plaid_settings', $settings );

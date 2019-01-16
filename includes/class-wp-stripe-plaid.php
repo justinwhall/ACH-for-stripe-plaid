@@ -83,7 +83,9 @@ class Wp_Stripe_Plaid {
 
 		if ( ! $db_version || $db_version !== $this->version ) {
 			$options = get_option( 'stripe_plaid_settings' );
-			$options['form_auth'] = 'private';
+			if ( ! isset( $options['form_auth'] ) ) {
+				$options['form_auth'] = 'private';
+			}
 			update_option( 'stripe_plaid_settings', $options, true );
 			update_option( 'stripe_plaid_settings_db', $this->version, true );
 		}
