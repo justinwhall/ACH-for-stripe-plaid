@@ -38,9 +38,9 @@ class Wp_Stripe_Plaid_Activator {
 				'sp_environment'      => 'live',
 				'stripe_live_api_key' => '',
 				'stripe_test_api_key' => '',
-				'plaid_client_id'     => '' ,
-				'plaid_secret'        => '' ,
-				'plaid_public_key'    => '' ,
+				'plaid_client_id'     => '',
+				'plaid_secret'        => '',
+				'plaid_public_key'    => '',
 				'log'                 => 'off',
 			);
 
