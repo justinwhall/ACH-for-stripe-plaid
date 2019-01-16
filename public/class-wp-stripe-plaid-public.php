@@ -84,7 +84,6 @@ class Wp_Stripe_Plaid_Public {
 		$this->version = $version;
 		$this->settings = get_option( 'stripe_plaid_settings' );
 		$this->set_stripe_key();
-		$this->has_creds();
 		add_shortcode( 'wp_stripe_plaid', array( $this, 'render_form' ) );
 	}
 
@@ -193,6 +192,13 @@ class Wp_Stripe_Plaid_Public {
 	 * @return void
 	 */
 	public function render_form() {
+
+		if ( defined( 'REST_REQUEST' ) || is_admin() ) {
+			return;
+		}
+
+		$this->has_creds();
+
 		$show_form = ( is_user_logged_in() && $this->settings['form_auth'] === 'private' || $this->settings['form_auth'] === 'public' ) ? true : false;
 
 		if ( ! $show_form ) {
@@ -201,12 +207,12 @@ class Wp_Stripe_Plaid_Public {
 			return ob_get_clean();
 		} else {
 
-			Wp_Stripe_Plaid_Public::get_all_stripe_customers( false );
 			wp_enqueue_script( $this->plugin_name );
 			wp_enqueue_script( 'stripe_plaid' );
 			wp_enqueue_style( $this->plugin_name );
 
 			if ( empty( $this->user_message ) ) {
+				Wp_Stripe_Plaid_Public::get_all_stripe_customers( false );
 				if ( $this->settings['sp_environment'] === 'live' ) {
 					$env = 'Production';
 				} elseif ( $this->settings['sp_environment'] === 'test' ) {
@@ -330,7 +336,10 @@ class Wp_Stripe_Plaid_Public {
 		// Check with Stripe to see if we have a customer with this email.
 		if ( ! $customer ) {
 			$customer = $this->get_customer_by_email( $email );
-			$stripe_customer_id = $customer->id;
+
+			if ( $customer ) {
+				$stripe_customer_id = $customer->id;
+			}
 		}
 
 		// If we still have not identified a customer, create one.
