@@ -214,7 +214,7 @@ class Wp_Stripe_Plaid_Public {
 			if ( empty( $this->user_message ) ) {
 				Wp_Stripe_Plaid_Public::get_all_stripe_customers( false );
 				if ( $this->settings['sp_environment'] === 'live' ) {
-					$env = 'Production';
+					$env = 'production';
 				} elseif ( $this->settings['sp_environment'] === 'test' ) {
 					$env = 'sandbox';
 				} else {
