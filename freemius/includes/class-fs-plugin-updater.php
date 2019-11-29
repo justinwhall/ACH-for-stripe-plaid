@@ -296,9 +296,13 @@
                 isset( $r->upgrade_notice ) &&
                 strlen( trim( $r->upgrade_notice ) ) > 0
             ) {
+                $slug = $this->_fs->get_slug();
+
                 $upgrade_notice_html = sprintf(
-                    '<p class="notice upgrade-notice"><strong>%s</strong> %s</p>',
-                    fs_text_inline( 'Important Upgrade Notice:', 'upgrade_notice', $this->_fs->get_slug() ),
+                    '<p class="notice fs-upgrade-notice fs-slug-%1$s fs-type-%2$s" data-slug="%1$s" data-type="%2s"><strong>%3$s</strong> %4$s</p>',
+                    $slug,
+                    $this->_fs->get_module_type(),
+                    fs_text_inline( 'Important Upgrade Notice:', 'upgrade_notice', $slug ),
                     esc_html( $r->upgrade_notice )
                 );
 
@@ -830,14 +834,29 @@
                 return $data;
             }
 
-            $addon    = false;
-            $is_addon = false;
+            $addon         = false;
+            $is_addon      = false;
+            $addon_version = false;
 
             if ( $this->_fs->get_slug() !== $args->slug ) {
                 $addon = $this->_fs->get_addon_by_slug( $args->slug );
 
                 if ( ! is_object( $addon ) ) {
                     return $data;
+                }
+
+                if ( $this->_fs->is_addon_activated( $addon->id ) ) {
+                    $addon_version = $this->_fs->get_addon_instance( $addon->id )->get_plugin_version();
+                } else if ( $this->_fs->is_addon_installed( $addon->id ) ) {
+                    $addon_plugin_data = get_plugin_data(
+                        ( WP_PLUGIN_DIR . '/' . $this->_fs->get_addon_basename( $addon->id ) ),
+                        false,
+                        false
+                    );
+
+                    if ( ! empty( $addon_plugin_data ) ) {
+                        $addon_version = $addon_plugin_data['Version'];
+                    }
                 }
 
                 $is_addon = true;
@@ -870,7 +889,9 @@ if ( !isset($info->error) ) {
 }*/
             }
 
-            $plugin_version = $this->_fs->get_plugin_version();
+            $plugin_version = $is_addon ?
+                $addon_version :
+                $this->_fs->get_plugin_version();
 
             // Get plugin's newest update.
             $new_version = $this->get_latest_download_details( $is_addon ? $addon->id : false, $plugin_version );
@@ -998,8 +1019,8 @@ if ( !isset($info->error) ) {
 
             $active_plugins_basenames = get_option( 'active_plugins' );
 
-            for ( $i = 0, $len = count( $active_plugins_basenames ); $i < $len; $i ++ ) {
-                if ( $basename === $active_plugins_basenames[ $i ] ) {
+            foreach ( $active_plugins_basenames as $key => $active_plugin_basename ) {
+                if ( $basename === $active_plugin_basename ) {
                     // Get filename including extension.
                     $filename = basename( $basename );
 
@@ -1011,7 +1032,7 @@ if ( !isset($info->error) ) {
                     // Verify that the expected correct path exists.
                     if ( file_exists( fs_normalize_path( WP_PLUGIN_DIR . '/' . $new_basename ) ) ) {
                         // Override active plugin name.
-                        $active_plugins_basenames[ $i ] = $new_basename;
+                        $active_plugins_basenames[ $key ] = $new_basename;
                         update_option( 'active_plugins', $active_plugins_basenames );
                     }
 
@@ -1242,7 +1263,7 @@ if ( !isset($info->error) ) {
         static function _store_basename_for_source_adjustment( $response, $hook_extra ) {
             if ( isset( $hook_extra['plugin'] ) ) {
                 self::$_upgrade_basename = $hook_extra['plugin'];
-            } else if ( $hook_extra['theme'] ) {
+            } else if ( isset( $hook_extra['theme'] ) ) {
                 self::$_upgrade_basename = $hook_extra['theme'];
             } else {
                 self::$_upgrade_basename = null;

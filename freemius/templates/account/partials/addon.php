@@ -21,8 +21,8 @@
     $download_latest_text         = fs_text_x_inline( 'Download Latest', 'as download latest version', 'download-latest', $slug );
     $downgrading_plan_text        = fs_text_inline( 'Downgrading your plan', 'downgrading-plan', $slug );
     $cancelling_subscription_text = fs_text_inline( 'Cancelling the subscription', 'cancelling-subscription', $slug );
-    /* translators: %1s: Either 'Downgrading your plan' or 'Cancelling the subscription' */
-    $downgrade_x_confirm_text     = fs_text_inline( '%1s will immediately stop all future recurring payments and your %s plan license will expire in %s.', 'downgrade-x-confirm', $slug );
+    /* translators: %1$s: Either 'Downgrading your plan' or 'Cancelling the subscription' */
+    $downgrade_x_confirm_text     = fs_text_inline( '%1$s will immediately stop all future recurring payments and your %s plan license will expire in %s.', 'downgrade-x-confirm', $slug );
     $prices_increase_text         = fs_text_inline( 'Please note that we will not be able to grandfather outdated pricing for renewals/new subscriptions after a cancellation. If you choose to renew the subscription manually in the future, after a price increase, which typically occurs once a year, you will be charged the updated price.', 'pricing-increase-warning', $slug );
     $cancel_trial_confirm_text         = fs_text_inline( 'Cancelling the trial will immediately block access to all premium features. Are you sure?', 'cancel-trial-confirm', $slug );
     $after_downgrade_non_blocking_text = fs_text_inline( 'You can still enjoy all %s features but you will not have access to %s security & feature updates, nor support.', 'after-downgrade-non-blocking', $slug );
@@ -268,7 +268,7 @@
                 if ( $fs->is_allowed_to_install() ) {
                     $buttons[] = sprintf(
                         '<a class="button button-primary edit" href="%s">%s</a>',
-                        wp_nonce_url( self_admin_url( 'update.php?action=install-plugin&plugin=' . $addon->slug ), 'install-plugin_' . $addon->slug ),
+                        wp_nonce_url( self_admin_url( 'update.php?fs_allow_updater_and_dialog=true&action=install-plugin&plugin=' . $addon->slug ), 'install-plugin_' . $addon->slug ),
                         fs_text_inline( 'Install Now', 'install-now', $slug )
                     );
                 } else {
@@ -283,7 +283,7 @@
 
         if ( $show_upgrade ) {
             $buttons[] = sprintf( '<a href="%s" class="thickbox button button-small button-primary" aria-label="%s" data-title="%s"><i class="dashicons dashicons-cart"></i> %s</a>',
-                esc_url( network_admin_url( 'plugin-install.php?tab=plugin-information&parent_plugin_id=' . $fs->get_id() . '&plugin=' . $addon->slug .
+                esc_url( network_admin_url( 'plugin-install.php?fs_allow_updater_and_dialog=true&tab=plugin-information&parent_plugin_id=' . $fs->get_id() . '&plugin=' . $addon->slug .
                                             '&TB_iframe=true&width=600&height=550' ) ),
                 esc_attr( sprintf( fs_text_inline( 'More information about %s', 'more-information-about-x', $slug ), $addon->title ) ),
                 esc_attr( $addon->title ),
@@ -319,7 +319,7 @@
             <?php else : ?>
                 <?php if ( $fs->is_allowed_to_install() ) : ?>
                     <a class="button button-primary"
-                       href="<?php echo wp_nonce_url( self_admin_url( 'update.php?action=install-plugin&plugin=' . $addon->slug ), 'install-plugin_' . $addon->slug ) ?>"><?php fs_esc_html_echo_inline( 'Install Now', 'install-now', $slug ) ?></a>
+                       href="<?php echo wp_nonce_url( self_admin_url( 'update.php?fs_allow_updater_and_dialog=true&action=install-plugin&plugin=' . $addon->slug ), 'install-plugin_' . $addon->slug ) ?>"><?php fs_esc_html_echo_inline( 'Install Now', 'install-now', $slug ) ?></a>
                 <?php else : ?>
                     <a target="_blank" class="button button-primary"
                        href="<?php echo $fs->_get_latest_download_local_url( $addon_id ) ?>"><?php echo esc_html( $download_latest_text ) ?></a>
